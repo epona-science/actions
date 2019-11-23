@@ -1,0 +1,23 @@
+name: ClickUp Review Action
+
+on:
+  pull_request_review:
+    types: [submitted, edited] 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ClickUp Review
+      env:
+        clickup_secret: ${{ secrets.ClickUpSecret }}
+        event_state: ${{ github.event.review.state }}
+      if: contains(github.event.review.state, 'CHANGES_REQUESTED')
+      run: |
+        TASK_ID=$(echo ${{ github.event.pull_request.head.ref }} | sed -E 's#^([a-z0-9]+)-.*$#\1#')
+        curl --include \
+             --request PUT \
+             --header "Authorization: ${clickup_secret}" \
+             --header "Content-Type: application/json" \
+             --data-binary "{\"status\":\"CHANGES REQUESTED\"}" \
+        "https://api.clickup.com/api/v2/task/${TASK_ID}"

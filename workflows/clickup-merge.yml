@@ -1,0 +1,37 @@
+name: ClickUp Merge Action
+
+on:
+  pull_request:
+    types: [closed]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: ClickUp Merged
+      env:
+        clickup_secret: ${{ secrets.ClickUpSecret }}
+      if: github.event.pull_request.merged      
+      run: |
+          TASK_ID=$(echo ${{ github.event.pull_request.head.ref }} | sed -E 's#^([a-z0-9]+)-.*$#\1#')
+          curl --include \
+               --request PUT \
+               --header "Authorization: ${clickup_secret}" \
+               --header "Content-Type: application/json" \
+               --data-binary "{\"status\":\"MERGED\"}" \
+          "https://api.clickup.com/api/v2/task/${TASK_ID}"
+
+    - name: ClickUp Closed
+      env:
+        clickup_secret: ${{ secrets.ClickUpSecret }}
+      if: github.event.pull_request.merged == false
+      run: |
+          TASK_ID=$(echo ${{ github.event.pull_request.head.ref }} | sed -E 's#^([a-z0-9]+)-.*$#\1#')
+          curl --include \
+               --request PUT \
+               --header "Authorization: ${clickup_secret}" \
+               --header "Content-Type: application/json" \
+               --data-binary "{\"status\":\"BACK LOG\"}" \
+          "https://api.clickup.com/api/v2/task/${TASK_ID}"
+
