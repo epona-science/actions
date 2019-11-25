@@ -1,0 +1,15 @@
+name: ClickUp Action
+description: Sends a POST Request to update ClickUp Task
+inputs:
+  status:
+      description: 'The Status parameter'
+      required: true
+  clickup_secret:
+      description: 'ClickUp Secret to use'
+      required: true
+  head_ref:
+      description: 'the Ref of the branch, used to parse task ID'
+      required: true  
+runs:
+  using: 'docker' 
+  image: 'lib/Dockerfile'
