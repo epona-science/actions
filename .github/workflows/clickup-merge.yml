@@ -1,0 +1,25 @@
+name: ClickUp Merge Action
+
+on:
+  pull_request:
+      types: [closed]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: ClickUp Merged
+      if: github.event.pull_request.merged
+      uses: epona-science/actions@master
+      with:
+          clickup_secret: ${{ secrets.ClickUpSecret }}
+          head_ref: ${{ github.event.pull_request.head.ref }}
+          status: "MERGED"
+          
+    - name: ClickUp Closed
+      if: github.event.pull_request.merged == false
+      uses: epona-science/actions@master
+      with:
+          clickup_secret: ${{ secrets.ClickUpSecret }}
+          head_ref: ${{ github.event.pull_request.head.ref }}
+          status: "BACK LOG"
